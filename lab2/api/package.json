@@ -1,0 +1,12 @@
+{
+  "name": "lab2-api",
+  "version": "1.0.0",
+  "description": "API minima para Lab 2 - CI/CD com GitHub Actions",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "test": "node test/health.test.js"
+  },
+  "keywords": [],
+  "license": "MIT"
+}

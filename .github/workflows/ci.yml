@@ -1,0 +1,93 @@
+# ========================================
+# Pipeline CI/CD - Lab 2
+# Cloud Computing - SETREM
+# ========================================
+
+name: Lab2 CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  # ----- Job 1: Testes -----
+  test:
+    runs-on: ubuntu-latest
+
+    # DESAFIO EXTRA: Descomente o bloco abaixo para adicionar PostgreSQL ao pipeline
+    # services:
+    #   postgres:
+    #     image: postgres:16-alpine
+    #     env:
+    #       POSTGRES_DB: lab2_test
+    #       POSTGRES_USER: test
+    #       POSTGRES_PASSWORD: test
+    #     ports:
+    #       - 5432:5432
+    #     options: >-
+    #       --health-cmd pg_isready
+    #       --health-interval 10s
+    #       --health-timeout 5s
+    #       --health-retries 5
+
+    steps:
+      - name: Checkout do codigo
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Instalar dependencias
+        working-directory: lab2/api
+        run: npm ci
+
+      - name: Executar testes
+        working-directory: lab2/api
+        run: npm test
+        # DESAFIO EXTRA: Descomente para testes com banco
+        # env:
+        #   DATABASE_URL: postgresql://test:test@localhost:5432/lab2_test
+
+  # ----- Job 2: Build Docker -----
+  build:
+    needs: test
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main'
+
+    steps:
+      - name: Checkout do codigo
+        uses: actions/checkout@v4
+
+      - name: Build da imagem Docker
+        run: |
+          docker build -t lab2-api:${{ github.sha }} -f lab2/Dockerfile lab2/
+          docker tag lab2-api:${{ github.sha }} lab2-api:latest
+          echo "Build completo!"
+
+      - name: Verificar imagem
+        run: |
+          echo "=== Imagens geradas ==="
+          docker images lab2-api
+          SIZE=$(docker image inspect lab2-api:latest --format='{{.Size}}')
+          echo "Tamanho: $((SIZE / 1024 / 1024)) MB"
+          if [ $SIZE -gt 209715200 ]; then
+            echo "AVISO: Imagem maior que 200MB! Verifique o multi-stage build."
+            exit 1
+          fi
+
+      - name: Testar container
+        run: |
+          docker run -d -p 8080:8080 --name lab2-test lab2-api:latest
+          sleep 3
+          STATUS=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:8080/healthz)
+          if [ "$STATUS" != "200" ]; then
+            echo "ERRO: /healthz retornou $STATUS (esperado 200)"
+            docker logs lab2-test
+            exit 1
+          fi
+          echo "Container saudavel - /healthz retornou 200"
+          docker stop lab2-test
