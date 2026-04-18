@@ -23,7 +23,7 @@ spec:
       containers:
       - name: api
         # Tag atualizada automaticamente pelo pipeline CI/CD
-        image: ghcr.io/setrem-cloud/gamma-labs:latest  # Trocar pelo repo de labs da sua equipe
+        image: ghcr.io/setrem-cloud/gamma-lab:latest  # Trocar pelo repo de labs da sua equipe
         ports:
         - containerPort: 8080
         env:
