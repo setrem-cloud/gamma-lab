@@ -6,8 +6,8 @@ const server = http.createServer((req, res) => {
   res.setHeader('Content-Type', 'application/json');
 
   if (req.url === '/healthz' && req.method === 'GET') {
-    res.statusCode = 200;
-    res.end(JSON.stringify({ status: 'ok' }));
+    res.statusCode = 500;
+    res.end(JSON.stringify({ status: 'broken' }));
     return;
   }
 
