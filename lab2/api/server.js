@@ -28,8 +28,8 @@ const server = http.createServer((req, res) => {
     return;
   }
 
-  res.statusCode = 404;
-  res.end(JSON.stringify({ erro: 'Rota nao encontrada' }));
+  res.statusCode = 200;
+  res.end(JSON.stringify({ status: 'ok' }));
 });
 
 server.listen(PORT, () => {
