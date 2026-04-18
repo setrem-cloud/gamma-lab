@@ -16,7 +16,7 @@ spec:
 
   # Onde buscar os manifests
   source:
-    repoURL: https://github.com/setrem-cloud/gamma-labs.git  # Trocar pelo repo de labs da sua equipe
+    repoURL: https://github.com/setrem-cloud/gamma-lab.git  # Trocar pelo repo de labs da sua equipe
     targetRevision: main
     path: lab3/k8s  # Manifests dentro da pasta lab3
 
