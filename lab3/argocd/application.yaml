@@ -1,0 +1,34 @@
+# ========================================
+# ArgoCD Application - Lab 3
+# Conecta o ArgoCD ao repositorio de labs da equipe
+#
+# ANTES DE APLICAR:
+#   Substituir <equipe> pelo nome da sua equipe (ex: gamma)
+# ========================================
+
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: lab3-api
+  namespace: argocd
+spec:
+  project: default
+
+  # Onde buscar os manifests
+  source:
+    repoURL: https://github.com/setrem-cloud/gamma-labs.git  # Trocar pelo repo de labs da sua equipe
+    targetRevision: main
+    path: lab3/k8s  # Manifests dentro da pasta lab3
+
+  # Onde deployar
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: equipe-gamma  # Trocar pelo namespace da sua equipe
+
+  # Politica de sincronizacao
+  syncPolicy:
+    automated:
+      prune: true       # Remove recursos que foram deletados do Git
+      selfHeal: true    # Reverte mudancas manuais feitas no cluster
+    syncOptions:
+      - CreateNamespace=true
